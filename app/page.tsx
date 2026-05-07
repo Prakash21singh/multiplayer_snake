@@ -1,65 +1,178 @@
-import Image from "next/image";
+"use client"
+import Grid from "@/components/grid";
+import ScoreBoard from "@/components/score-board";
+import Modal from "@/components/modal";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { useLocalStorage } from "@/hooks/use-localstorage";
+
+type GameState = "idle" | "playing" | "paused" | "gameover";
 
 export default function Home() {
+  const [gameState, setGameState] = useState<GameState>("idle");
+  const [score, setScore] = useState(0);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState<null | string>(null);
+  const [gameOverReason, setGameOverReason] = useState<string>("");
+  const [snakeSpeed, setSnakeSpeed] = useState(250);
+  const [randomFruitIcon, setRandomFruitIcon] = useState<null | string>("");
+  const [finalScore, setFinalScore] = useState(0);
+  const [name, setName] = useState<string | null>(null)
+  const [tempName, setTempName] = useState<string>("");
+  const [isEditingName, setIsEditingName] = useState(false);
+  const {get,set} = useLocalStorage();
+
+  const FRUITS = [
+    "🍎", "🍏", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🫐", "🍈", "🍒", "🍑", "🥭", "🍍", "🥥", "🥝", "🍅", "🍆", "🥑", 
+  ];
+
+  useLayoutEffect(()=>{
+    const username = get("username")
+    setName(username || "")
+    setTempName(username || "")
+  },[]);
+
+  const handleSaveName = useCallback(() => {
+    if (tempName.trim()) {
+      set("username", tempName.trim());
+      setName(tempName.trim());
+      setIsEditingName(false);
+    }
+  }, [tempName, set]);
+
+  const handleEditName = useCallback(() => {
+    setTempName(name || "");
+    setIsEditingName(true);
+  }, [name]);
+
+  const handleCancelEditName = useCallback(() => {
+    setTempName(name || "");
+    setIsEditingName(false);
+  }, [name]);
+
+  const handleStartGame = useCallback(() => {
+    if (!name && tempName.trim()) {
+      set("username", tempName.trim());
+      setName(tempName.trim());
+    }
+    setScore(0);
+    setSnakeSpeed(250);
+    setError(null);
+    setGameOverReason("");
+    setGameState("playing");
+  }, [name, tempName, set]);
+
+  const startGame = useCallback(()=>{
+    setScore(0);
+    setSnakeSpeed(250);
+    setError(null);
+    setGameOverReason("");
+    setGameState("playing");
+  }, []);
+  const pauseGame = useCallback(()=>{
+    setGameState("paused");
+  }, []);
+
+  const resumeGame = useCallback(()=>{
+    setGameState("playing");
+  }, []);
+
+  const handleGameOver = useCallback((reason: string)=>{
+    setGameOverReason(reason);
+    setError(reason);
+    setGameState("gameover");
+    setFinalScore(score);
+  }, [score]);
+
+
+  const handleRetry = useCallback(()=>{
+    startGame();
+  }, [startGame]);
+
+  const handleClearError = useCallback(()=>{
+    setError(null);
+  }, []);
+
+  // Set initial fruit icon
+  useEffect(()=>{
+    const randomFruitIdx = Math.floor(Math.random() * FRUITS.length);
+    setRandomFruitIcon(FRUITS[randomFruitIdx]);
+  }, []);
+
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="w-full h-screen flex font-inter">
+      {/* Start Game Modal - shows on idle state */}
+      <Modal
+        isOpen={gameState === "idle"}
+        title={name ? "🐍 Snake Game" : "🐍 Snake Game"}
+        description={name ? "Eat fruits, grow longer, and avoid hitting walls or yourself!" : "Enter your name to get started!"}
+        primaryBtnText="Start Game"
+        onPrimaryClick={handleStartGame}
+        disabled={!name && !tempName.trim()}
+        nameInput={!name ? {
+          value: tempName,
+          onChange: setTempName,
+          placeholder: "Enter your name"
+        } : undefined}
+      />
+
+      {/* Edit name modal */}
+      <Modal
+        isOpen={isEditingName}
+        title="Edit Name"
+        primaryBtnText="Save"
+        onPrimaryClick={handleSaveName}
+        secondaryBtnText="Cancel"
+        onSecondaryClick={handleCancelEditName}
+        disabled={!tempName.trim()}
+        nameInput={{
+          value: tempName,
+          onChange: setTempName,
+          placeholder: "Enter your name"
+        }}
+      />
+
+      {/* Game over modal */}
+      <Modal
+        isOpen={gameState === "gameover"}
+        title="Game Over"
+        description={gameOverReason}
+        score={finalScore}
+        primaryBtnText="Retry"
+        onPrimaryClick={() => {
+          setScore(0);
+          setSnakeSpeed(250);
+          setError(null);
+          setGameOverReason("");
+          setGameState("idle");
+        }}
+      />
+
+      <Grid
+        score={score}
+        setScore={setScore}
+        setMessage={setMessage}
+        setError={setError}
+        snakeSpeed={snakeSpeed}
+        randomFruitIcon={randomFruitIcon}
+        isGameActive={gameState === "playing"}
+        onGameOver={handleGameOver}
+      />
+      
+      <ScoreBoard
+        error={error}
+        message={message}
+        score={score}
+        username={name}
+        onEditName={handleEditName}
+        baseSpeed={250}
+        snakeSpeed={snakeSpeed}
+        randomFruitIcon={randomFruitIcon}
+        onClearError={handleClearError}
+        gameState={gameState}
+        onPause={pauseGame}
+        onResume={resumeGame}
+      />
     </div>
   );
 }
