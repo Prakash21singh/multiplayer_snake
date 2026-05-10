@@ -30,7 +30,6 @@ function Modal({
   nameInput,
 }: Props) {
 
-  console.log({nameInput})
   if (!isOpen) return null
 
   return (
