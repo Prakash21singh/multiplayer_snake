@@ -1,0 +1,5 @@
+
+1. Create an auth wrapper first.
+2. Create an socket wrapper.
+3. If user connects with the socket using the userinfo
+4. Do the rest.

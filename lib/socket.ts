@@ -13,7 +13,7 @@ export const connectSocket = () => {
     }
 
     socket = new WebSocket(
-        "ws://localhost:8080?userId=user123&name=John Doe"
+        `ws://localhost:8080/ws?id=23xlkr&name=John`
     );
 
     socket.onopen = () => {

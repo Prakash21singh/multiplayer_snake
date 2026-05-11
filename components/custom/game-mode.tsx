@@ -20,6 +20,7 @@ import { useLocalStorage } from "@/hooks/use-localstorage";
 import { useSocket } from "@/hooks/useSocket";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/use-user";
+import { useSocketContext } from "@/contexts/socket-context";
 
 function CardFooterContent() {
     return (
@@ -105,7 +106,7 @@ export default function GameMode(){
     const [roomId, setRoomId] = useState("");
     const [selectedTab, setSelectedTab] = useState("free");
     const {get, set} = useLocalStorage()
-    const { sendMessage, socket } = useSocket();
+    const { sendMessage, socket } = useSocketContext();
     const {id, name, setName} = useUser()
    
     const router = useRouter();

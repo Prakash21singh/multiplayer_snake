@@ -1,7 +1,4 @@
 "use client"
-import { useUser } from '@/hooks/use-user';
-import { useSocket } from '@/hooks/useSocket';
-import { Loader, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import React, { useEffect, useMemo, useState } from 'react'
 import {
@@ -14,9 +11,9 @@ import {
     ,DialogOverlay,
     DialogPortal,
     DialogTitle,
-    DialogTrigger
-} from "@/components/ui/dialog"
-import { useLocalStorage } from '@/hooks/use-localstorage';
+} from "@/components/ui/dialog";
+import { useSocketContext } from '@/contexts/socket-context';
+import { Loader2 } from 'lucide-react';
 type Props = {
     id: string
 }
@@ -32,14 +29,20 @@ function MultiplayerMode({
     id
 }: Props) {
 
-  const {socket, sendMessage} = useSocket();
+  const {socket, sendMessage, id:userId, name, setName} = useSocketContext();
   const [room, setRoom] = useState<unknown | null>(null)
   const [loading, setLoading] = useState(true);
-  const {id:userId, name, setName} = useUser()
   const [isOpen, setIsOpen] = useState(!name);
   const [isConnecting, setIsConnecting] = useState(false);
   const [inputState, setInputState] = useState("");
   const [participants, setParticipants] = useState<{user:{name:string; id:string}}[]>([]);
+  const currentUser = useMemo(()=>{
+    let user = {
+        id : userId || "",
+        name: name || ""
+    }
+    return user;
+  }, [userId, name]);
 
   useEffect(() => {
     setIsOpen(!name);
@@ -50,22 +53,23 @@ function MultiplayerMode({
     return (room as any).organizer as Participants
   },[socket?.readyState, id]);
 
+
+    //  If the socket is open and the user is not in the room, join the room
+    useEffect(()=>{
+        if(isOpen) return;
+        if(!socket) return ;
+
+        socket.send(JSON.stringify({
+            type: "JOIN_ROOM",
+            payload: {
+                roomId: id,
+                userId,  
+            }
+        }));
+
+    },[socket?.readyState, id, isOpen]);
+
   
-
-
-  useEffect(()=>{
-    if(isOpen) return;
-    if(!socket) return ;
-
-    socket.send(JSON.stringify({
-        type: "JOIN_ROOM",
-        payload: {
-            roomId: id,
-            userId,  
-        }
-    }));
-
-  },[socket?.readyState, id])
   useEffect(() => {
 
         if (!socket) return;
