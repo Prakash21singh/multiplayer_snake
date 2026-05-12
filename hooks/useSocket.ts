@@ -1,22 +1,21 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { connectSocket, getSocket } from "@/lib/socket";
+import { useAuth } from "./use-auth";
 
 export const useSocket = () => {
+
+    const {user, session} = useAuth()
 
     const [socket, setSocket] = useState<WebSocket | null>(
         getSocket()
     );
 
     useEffect(() => {
-
-        const ws = connectSocket();
+        if(!user) return;
+        const ws = connectSocket(user.id, user.name);
 
         setSocket(ws);
-
-        return () => {
-            ws.close();
-        };
-    }, []);
+    }, [user]);
 
     const sendMessage = (message: string) => {
 

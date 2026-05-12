@@ -24,7 +24,7 @@ function HomePage({}: Props) {
         <button
           onClick={handleLogout}
           disabled={isLoggingOut || authLoading}
-          className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-600/50 text-white rounded-lg font-medium transition-colors"
+          className="px-4 py-2 bg-red-600/50 text-white/50 hover:bg-red-700 disabled:bg-red-600/50 rounded-lg font-medium transition-colors"
         >
           {isLoggingOut ? 'Logging out...' : 'Logout'}
         </button>

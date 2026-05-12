@@ -21,6 +21,7 @@ import { useSocket } from "@/hooks/useSocket";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/use-user";
 import { useSocketContext } from "@/contexts/socket-context";
+import { useAuth } from "@/hooks/use-auth";
 
 function CardFooterContent() {
     return (
@@ -107,7 +108,7 @@ export default function GameMode(){
     const [selectedTab, setSelectedTab] = useState("free");
     const {get, set} = useLocalStorage()
     const { sendMessage, socket } = useSocketContext();
-    const {id, name, setName} = useUser()
+    const {user} = useAuth()
    
     const router = useRouter();
 
@@ -127,6 +128,7 @@ export default function GameMode(){
     },[])
 
     async function createRoom(roomId: string) {
+        if(!user) return;
         try {
             sendMessage(JSON.stringify({
                 type: "CREATE_ROOM",
@@ -134,8 +136,8 @@ export default function GameMode(){
                     roomId: roomId,
                     organizer: {
                         user: {
-                            id,
-                            name
+                            id: user?.id || "",
+                            name: user?.name || ""
                         }
                     }
                 }
@@ -236,15 +238,8 @@ export default function GameMode(){
                         <div>
                             <p className="text-white">Welcome to the multiplayer mode!</p>
                             <p className="mt-2 text-white/60">In this mode, you can play the snake game with your friends in real-time. Compete against each other to see who can get the highest score!</p>    
-                            <input
-                                type="text"
-                                placeholder="Enter your name"
-                                value={name || ""}
-                                onChange={(e) => setName(e.target.value)}
-                                className="flex-1 w-full rounded-lg mt-4 bg-transparent text-mauve-500 px-2 py-2  placeholder-white/30 border border-[#333]   focus:outline-none"
-                            />
                             <div className="mt-4 flex items-center gap-2">
-                                <div className="flex flex-1 items-center rounded-lg border border-[#333] bg-[#000] px-2">
+                                <div className="flex flex-1 items-center rounded-lg border border-[#333] bg-black px-2">
 
                                     <input
                                         type="text"

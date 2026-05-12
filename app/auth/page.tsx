@@ -66,7 +66,7 @@ export default function AuthPage() {
   return (
     <div className="w-full min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-[#131313] rounded-xl border border-[#333] relative overflow-hidden">
+        <div className="bg-[#131313] rounded-md border border-[#333] relative overflow-hidden">
           {/* Gradient Border Top */}
           <div
             style={{

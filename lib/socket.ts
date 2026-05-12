@@ -1,6 +1,6 @@
 let socket: WebSocket | null = null;
 
-export const connectSocket = () => {
+export const connectSocket = (userId: string, name: string) => {
 
     if (
         socket &&
@@ -13,7 +13,7 @@ export const connectSocket = () => {
     }
 
     socket = new WebSocket(
-        `ws://localhost:8080/ws?id=23xlkr&name=John`
+        `ws://localhost:8080/ws?userId=${userId}&name=${name}`
     );
 
     socket.onopen = () => {
